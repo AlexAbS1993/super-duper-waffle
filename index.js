@@ -2,11 +2,18 @@ const express = require('express')
 const mongoose = require('mongoose')
 const config = require('config')
 const cors = require('cors')
+const passport = require('passport')
+const passportJWT = require('./middleware/passport')
+const userRouter = require('./routes/userRouter')
 
 const app = express()
 const PORT = process.env.PORT || 5000
 app.use(express.json())
 app.use(cors())
+app.use(passport.initialize())
+passportJWT(passport)
+
+app.use("/auth", userRouter)
 
 mongoose.connect(config.get("db"), {
     useNewUrlParser: true,

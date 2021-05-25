@@ -1,4 +1,4 @@
 {
-    "db": "mongodb+srv://AlexAbS:199304@cluster0.qd0fz.mongodb.net/taskManager?retryWrites=true&w=majority",
+    "db": "mongodb+srv://AlexAbS:199304@cluster0.qd0fz.mongodb.net/taskmanager?retryWrites=true&w=majority",
     "secret": "notAsecret"
 }
