@@ -2,11 +2,12 @@ const getCurrentTask = require('../../functions/getCurrentTasks')
 const errorResponse = require('../../functions/errorResponse')
 const Task = require('../../models/task')
 const Commentary = require('../../models/comments')
+const checkFields = require('../../functions/addCheckField')
 
 const taskController = {
     getNewTasks: async (req, res) => {
         try{
-            let tasks = await getCurrentTask(Task, "new")
+            let tasks = await getCurrentTask(Task, "new") 
             res.status(200).json({
                 message: "Задачи получены",
                 tasks
@@ -25,7 +26,7 @@ const taskController = {
             })
         }
         catch(e){
-
+            errorResponse(res, e)
         }
     },
     getWorkingTasks: async (req, res) => {
@@ -128,13 +129,14 @@ const taskController = {
                     author: req.user._id,
                     task: candidate._id,
                     text: req.body.commentary,
-                    isReworking: true
+                    isReworking: true,
+                    checkedBy: [req.user._id]
                 })
                 await comment.save()
                 candidate.commentary.push(comment)
             }
             candidate.isCheckedBy = [req.user._id]
-            await candidate.save()
+            await candidate.save()            
             res.status(200).json({
                 message: "Задача изменена",
                 task: candidate
@@ -159,6 +161,68 @@ const taskController = {
         }
         catch(e){
             errorResponse(res, e) 
+        }
+    },
+    createCommentary: async(req, res) => {
+        try{
+            let comment = new Commentary({
+                author: req.user._id,
+                task: req.body._id,
+                text: req.body.commentary,
+                isReworking: false,
+                checkedBy: [req.user._id]
+            })
+            let task = await Task.findOne({_id: req.body._id})
+            task.commentary.push(comment)
+            await comment.save()
+            res.status(200).json({
+                message: "Комментарий опубликован",
+                comment
+            })
+        }
+        catch(e){
+            errorResponse(res, e) 
+        }
+    },
+    commentaryCheck: async (req, res) => {
+        try{
+            let comment = await Commentary.findOne({
+                _id: req.body._id
+            })
+            if (!comment){
+                throw new Error("Такого комментария не существует")
+            }
+            if (comment.checkedBy.some((e) => e === req.user._id)){
+                throw new Error("Уже было проверено")
+            }
+            comment.checkedBy.push(req.user._id)
+            await comment.save()
+            res.status(200).json({
+                message: "Проверено",
+                comment
+            })
+        }
+        catch(e){
+            errorResponse(res, e) 
+        }
+    },
+    taskCheck: async (req, res) => {
+        try{
+            let candidate = await Task.findOne({_id: req.body._id})
+            if (!candidate){
+                throw new Error("Такой задачи не существует")
+            }
+            if (candidate.isCheckedBy.some(e => e === req.user._id)){
+                throw new Error("Уже было проверено")
+            }
+            candidate.isCheckedBy.push(req.user._id)
+            await candidate.save()
+            res.status(200).json({
+                message: "Проверено"
+            })
+        }
+        catch(e){
+            errorResponse(res, e)      
         }
     }
 }

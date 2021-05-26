@@ -13,5 +13,7 @@ router.get("/getReady", controller.getReadyTasks)
 router.post("/create", controller.createTask)
 router.post("/change", controller.changeTaskStatus)
 router.delete("/delete", controller.deleteTask)
-
+router.post("/commentary/create", controller.createCommentary)
+router.post("/commentary/check", controller.commentaryCheck)
+router.post("/taskCheck", controller.taskCheck)
 module.exports = router

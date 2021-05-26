@@ -9,6 +9,5 @@ let router = Router()
 router.post("/login", controller.login)
 router.get("/login", passport.authenticate("jwt", {session: false}), controller.loginIn)
 router.post("/registration", inviteCheck, controller.registration)
-router.get('/howmany', controller.getCountUser)
 
 module.exports = router

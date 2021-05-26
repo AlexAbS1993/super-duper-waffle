@@ -20,7 +20,7 @@ const userController = {
             res.status(200).json({
                 message: "Добро пожаловать на сайт. Аутентификация прошла успешно",
                 user: {
-                    token,
+                    token: `Bearer ${token}`,
                     login: candidate.login,
                     status: candidate.status
                 }

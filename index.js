@@ -6,6 +6,7 @@ const passport = require('passport')
 const passportJWT = require('./middleware/passport')
 const userRouter = require('./routes/userRouter')
 const tasksRouter = require('./routes/taskRouter')
+const countRouter = require('./routes/countRouter')
 
 const app = express()
 const PORT = process.env.PORT || 5000
@@ -16,6 +17,7 @@ passportJWT(passport)
 
 app.use("/auth", userRouter)
 app.use("/tasks", tasksRouter)
+app.use('/count', countRouter)
 
 mongoose.connect(config.get("db"), {
     useNewUrlParser: true,
