@@ -16,7 +16,7 @@ const userController = {
             if (!isValidPassword){
                 throw new Error("Неверный пароль")
             }
-            const token = await jwt.sign({_id: candidate._id, login: candidate.login}, config.get("secret"))
+            const token = await jwt.sign({_id: candidate._id, login: candidate.login, status: candidate.status}, config.get("secret"))
             res.status(200).json({
                 message: "Добро пожаловать на сайт. Аутентификация прошла успешно",
                 user: {

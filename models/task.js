@@ -6,12 +6,16 @@ const Task = new Schema({
     priority: {type: String, enum: ["high", "middle", "low"], required: [true, "Приоритет должен быть задан"]},
     status: {type: String, default: 'new', enum: ['new', 'working', 'reworking', 'check', 'ready'], required: [true, "Статус задачи должен быть установлен"]},
     isCheckedBy: [{type: Schema.Types.ObjectId, ref: "User"}],
+    href: {type: String},
+    usersMark: {type: String},
     statusDetails: {
         addedAt: {type: Date, default: Date.now, required: [true, "Дата добавления должна присутствовать"]},
         history: [{
             addedAt: {type: Date},
-            status: {type: String, enum: ['new', 'working', 'reworking', 'check', 'ready'],
-            changedAt: {type: Date}}
+            status: {type: String, enum: ['new', 'working', 'reworking', 'check', 'ready']},
+            changedAt: {type: Date},
+            changeBy: {type: Schema.Types.ObjectId, ref: "User"},
+            addedBy: {type: Schema.Types.ObjectId, ref: "User"}
     }]
     },
     commentary: [{type: Schema.Types.ObjectId, ref: "Commentary"}]
