@@ -121,7 +121,7 @@ const taskController = {
                 addedBy: req.user._id
             })
             candidate.status = req.body.status
-            if (req.body.priority){
+            if (req.body.priority && req.body.status === "reworking"){
                 candidate.priority = req.body.priority
             }
             if (req.body.status === "reworking"){
@@ -192,7 +192,7 @@ const taskController = {
             if (!comment){
                 throw new Error("Такого комментария не существует")
             }
-            if (comment.checkedBy.some((e) => e === req.user._id)){
+            if (comment.checkedBy.some((e) => String(e) === String(req.user._id))){
                 throw new Error("Уже было проверено")
             }
             comment.checkedBy.push(req.user._id)

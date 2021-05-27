@@ -1,19 +1,25 @@
 const errorResponse = require('../../functions/errorResponse')
 const Task = require('../../models/task')
 
+const statuses = ["new", "ready", "working", "check", "reworking"]
+
 const countController = {
     getCountTasks: async(req, res) => {
         try{
-            const tasks = await Task.find({status: req.params.status}).select({isCheckedBy: 1})
-            let count = 0
-            tasks.forEach((e,i) => {
-                if (String(e.isCheckedBy) !== String(req.user._id)){
-                    count++
-                }
-            })
+            let countsArray = []
+            for (let i = 0; i < statuses.length; i++){
+                const tasks = await Task.find({status: statuses[i]}).select({isCheckedBy: 1})
+                countsArray[i] = {}
+                countsArray[i][statuses[i]] = 0
+                tasks.forEach((e, index) => {
+                    if (!e.isCheckedBy.some(k => String(k)===String(req.user._id))){
+                        countsArray[i][statuses[i]]++
+                    }
+                })
+            }
             res.status(200).json({
                 message:"Данные получены",
-                count
+                countsArray
             })
         }
         catch(e){
@@ -26,15 +32,12 @@ const countController = {
             let count = 0
             tasks.forEach((e, i) => {
                 e.commentary.forEach((k) => {
-                    k.checkedBy.forEach( x => {
-                        console.log(x)
-                        if (String(x._id) !== String(req.user._id)){
-                            count++
-                        }
+                   if (k.checkedBy.every( x => String(x._id) !== String(req.user._id))){
+                       count++
+                   }
                     }
                     )
                     
-                })
                 })
             res.status(200).json({
                 message:"Данные получены",

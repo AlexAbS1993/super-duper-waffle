@@ -74,18 +74,6 @@ const userController = {
             errorResponse(res, e)
             return
         }
-    },
-    getCountUser: async (req, res) => {
-        try{
-            const counts = await User.find().countDocuments()
-            res.status(200).json({
-                howMany: counts
-            })
-        }
-        catch(e){
-            errorResponse(res, e)
-            return
-        }
     }
 }
 
