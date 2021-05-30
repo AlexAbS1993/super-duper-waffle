@@ -2,7 +2,6 @@ const getCurrentTask = require('../../functions/getCurrentTasks')
 const errorResponse = require('../../functions/errorResponse')
 const Task = require('../../models/task')
 const Commentary = require('../../models/comments')
-const checkFields = require('../../functions/addCheckField')
 
 const taskController = {
     getNewTasks: async (req, res) => {
@@ -10,6 +9,7 @@ const taskController = {
             let tasks = await getCurrentTask(Task, "new") 
             res.status(200).json({
                 message: "Задачи получены",
+                status: "new",
                 tasks
             })
         }
@@ -22,6 +22,7 @@ const taskController = {
             let tasks = await getCurrentTask(Task, "check")
             res.status(200).json({
                 message: "Задачи получены",
+                status: "check",
                 tasks
             })
         }
@@ -34,6 +35,7 @@ const taskController = {
             let tasks = await getCurrentTask(Task, "working")
             res.status(200).json({
                 message: "Задачи получены",
+                status: "working",
                 tasks
             })
         }
@@ -46,6 +48,7 @@ const taskController = {
             let tasks = await getCurrentTask(Task, "reworking")
             res.status(200).json({
                 message: "Задачи получены",
+                status: "reworking",
                 tasks
             })
         }
@@ -58,6 +61,7 @@ const taskController = {
             let tasks = await getCurrentTask(Task, "ready")
             res.status(200).json({
                 message: "Задачи получены",
+                status: "ready",
                 tasks
             })
         }
@@ -74,6 +78,8 @@ const taskController = {
                 name: req.body.name,
                 priority: req.body.priority,
                 isCheckedBy: [req.user._id],
+                discription: req.body.discription ? req.body.discription : undefined,
+                link: req.body.link,
                 statusDetails: {
                     history: [
                         {
@@ -148,13 +154,17 @@ const taskController = {
     }, 
     deleteTask: async(req, res) => {
         try{
-            const candidate = await Task.findOneAndDelete({_id: req.body._id})
+            const candidate = await Task.findOne({_id: req.params.id})
             if (!candidate){
                 throw new Error("Такой записи нет")
             }
             if (req.user.status !== "admin"){
                 throw new Error("Доступ запрещен")
             }
+            for (let i = 0; i < candidate.commentary.length; i++){
+                await Commentary.findOneAndDelete({_id: candidate.commentary[i]._id})
+            }
+            await candidate.remove()
             res.status(200).json({
                 message: "Задача удалена"
             })
@@ -175,6 +185,7 @@ const taskController = {
             let task = await Task.findOne({_id: req.body._id})
             task.commentary.push(comment)
             await comment.save()
+            await task.save()
             res.status(200).json({
                 message: "Комментарий опубликован",
                 comment
@@ -223,6 +234,34 @@ const taskController = {
         }
         catch(e){
             errorResponse(res, e)      
+        }
+    },
+    getOneTask: async(req, res) => {
+        try{
+            let candidate = await Task.findOne({_id: req.params.id})
+            if (!candidate){
+                throw new Error("Такой задачи не существует")
+            }
+            res.status(200).json({
+                message: "Задача получена",
+                candidate
+            })
+        }
+        catch(e){
+            errorResponse(res, e)   
+        }
+    },
+    getComment: async(req, res) => {
+        try{
+            const comments = await Task.findOne({_id: req.params.id}).select({commentary: 1}).populate({path: "commentary", populate:{path: "author"}})
+            comments.commentary.reverse()
+            res.status(200).json({
+                message: "Комментарии получены",
+                comments: comments
+            })
+        }
+        catch(e){
+            errorResponse(res, e)   
         }
     }
 }

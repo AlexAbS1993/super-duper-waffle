@@ -22,6 +22,7 @@ const userController = {
                 user: {
                     token: `Bearer ${token}`,
                     login: candidate.login,
+                    _id: candidate._id,
                     status: candidate.status
                 }
             })
